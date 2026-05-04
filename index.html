@@ -96,8 +96,22 @@
             <button id="copyButton" type="button" aria-label="Prompt kopieren" title="Prompt kopieren">
               Kopieren
             </button>
+            <button id="analyzeButton" type="button" aria-label="Analyse starten" title="Analyse starten">
+              Analyse starten
+            </button>
           </div>
           <textarea id="promptOutput" spellcheck="false"></textarea>
+          <section class="analysis-box" aria-label="Analyse Ergebnis">
+            <div class="analysis-header">
+              <p class="eyebrow">KI-Analyse</p>
+              <span id="analysisStatus" role="status" aria-live="polite"></span>
+            </div>
+            <textarea
+              id="analysisOutput"
+              spellcheck="false"
+              placeholder="Die Analyse erscheint hier nach dem Start..."
+            ></textarea>
+          </section>
           <div class="status-row">
             <span id="copyStatus" role="status" aria-live="polite"></span>
             <span id="charCount"></span>

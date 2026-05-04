@@ -1,7 +1,10 @@
 const form = document.querySelector("#promptForm");
 const output = document.querySelector("#promptOutput");
+const analysisOutput = document.querySelector("#analysisOutput");
 const copyButton = document.querySelector("#copyButton");
+const analyzeButton = document.querySelector("#analyzeButton");
 const copyStatus = document.querySelector("#copyStatus");
+const analysisStatus = document.querySelector("#analysisStatus");
 const charCount = document.querySelector("#charCount");
 
 const fields = {
@@ -126,6 +129,39 @@ async function copyPrompt() {
   }, 1800);
 }
 
+async function runAnalysis() {
+  analyzeButton.disabled = true;
+  analysisStatus.textContent = "Analyse laeuft...";
+  analysisOutput.value = "";
+
+  try {
+    const response = await fetch("/api/analyze", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        prompt: output.value,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Analyse fehlgeschlagen.");
+    }
+
+    analysisOutput.value = data.analysis || "Keine Analyse erhalten.";
+    analysisStatus.textContent = "Fertig";
+  } catch (error) {
+    analysisOutput.value = error.message;
+    analysisStatus.textContent = "Fehler";
+  } finally {
+    analyzeButton.disabled = false;
+  }
+}
+
 form.addEventListener("input", renderPrompt);
 copyButton.addEventListener("click", copyPrompt);
+analyzeButton.addEventListener("click", runAnalysis);
 renderPrompt();
