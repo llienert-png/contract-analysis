@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Prompt-Generator fuer Werkvertragsanalysen im Garten- und Landschaftsbau Schweiz."
+    />
+    <title>GaLaBau Vertragsanalyse CH</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="workspace" aria-label="Prompt Generator">
+        <div class="panel input-panel">
+          <header class="panel-header">
+            <p class="eyebrow">Schweiz - Gartenbau - Landschaftsbau</p>
+            <h1>Werkvertragsanalyse</h1>
+            <p>
+              Erstelle einen strukturierten Analyse-Prompt fuer Schweizer
+              Gartenbau- und Landschaftsbauvertraege.
+            </p>
+          </header>
+
+          <form id="promptForm" class="form-grid">
+            <label>
+              Projekt / Objekt
+              <input
+                id="projectName"
+                type="text"
+                placeholder="z.B. Umgestaltung Privatgarten Meilen"
+              />
+            </label>
+
+            <label>
+              Rolle
+              <select id="role">
+                <option value="neutral">Neutral analysieren</option>
+                <option value="auftraggeber">Fokus Auftraggeber</option>
+                <option value="unternehmer">Fokus Unternehmer</option>
+              </select>
+            </label>
+
+            <fieldset>
+              <legend>Arbeiten</legend>
+              <div class="chip-grid" id="workTypes">
+                <label><input type="checkbox" value="Erdarbeiten" checked /> Erdarbeiten</label>
+                <label><input type="checkbox" value="Belagsarbeiten" checked /> Belaege</label>
+                <label><input type="checkbox" value="Mauern und Einfassungen" checked /> Mauern</label>
+                <label><input type="checkbox" value="Entwaesserung und Drainage" checked /> Entwaesserung</label>
+                <label><input type="checkbox" value="Bepflanzung" checked /> Bepflanzung</label>
+                <label><input type="checkbox" value="Rasen und Begruenung" checked /> Rasen</label>
+                <label><input type="checkbox" value="Bewaesserung" /> Bewaesserung</label>
+                <label><input type="checkbox" value="Beleuchtung" /> Beleuchtung</label>
+                <label><input type="checkbox" value="Pflegeleistungen" /> Pflege</label>
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend>Normen & Schwerpunkte</legend>
+              <div class="switch-list">
+                <label><input id="sia118" type="checkbox" checked /> SIA 118 beruecksichtigen, falls vereinbart</label>
+                <label><input id="siaGaLa" type="checkbox" checked /> Garten- und landschaftsbauspezifische Normen pruefen</label>
+                <label><input id="anwuchs" type="checkbox" checked /> Anwuchs- und Pflegegarantie vertiefen</label>
+                <label><input id="neighbors" type="checkbox" checked /> Nachbarrechte, Grenzen und Dienstbarkeiten pruefen</label>
+              </div>
+            </fieldset>
+
+            <label>
+              Besondere Risiken oder Hinweise
+              <textarea
+                id="specialRisks"
+                rows="5"
+                placeholder="z.B. Hanglage, alte Leitungen, bestehende Natursteinmauer, enger Zugang, Etappierung..."
+              ></textarea>
+            </label>
+
+            <label>
+              Vertragstext
+              <textarea
+                id="contractText"
+                rows="8"
+                placeholder="Hier den Werkvertrag oder die Offerte einfuegen..."
+              ></textarea>
+            </label>
+          </form>
+        </div>
+
+        <aside class="panel output-panel">
+          <div class="toolbar">
+            <div>
+              <p class="eyebrow">Generierter Prompt</p>
+              <h2>Analyseauftrag</h2>
+            </div>
+            <button id="copyButton" type="button" aria-label="Prompt kopieren" title="Prompt kopieren">
+              Kopieren
+            </button>
+          </div>
+          <textarea id="promptOutput" spellcheck="false"></textarea>
+          <div class="status-row">
+            <span id="copyStatus" role="status" aria-live="polite"></span>
+            <span id="charCount"></span>
+          </div>
+        </aside>
+      </section>
+    </main>
+
+    <script src="./script.js"></script>
+  </body>
+</html>
