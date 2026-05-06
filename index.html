@@ -77,6 +77,12 @@
             </label>
 
             <label>
+              Vertrag als PDF hochladen
+              <input id="pdfFile" type="file" accept="application/pdf,.pdf" />
+              <span id="pdfStatus" class="field-status" role="status" aria-live="polite"></span>
+            </label>
+
+            <label>
               Vertragstext
               <textarea
                 id="contractText"
@@ -120,6 +126,7 @@
       </section>
     </main>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <script src="./script.js"></script>
   </body>
 </html>

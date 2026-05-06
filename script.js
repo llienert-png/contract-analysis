@@ -6,17 +6,24 @@ const analyzeButton = document.querySelector("#analyzeButton");
 const copyStatus = document.querySelector("#copyStatus");
 const analysisStatus = document.querySelector("#analysisStatus");
 const charCount = document.querySelector("#charCount");
+const pdfStatus = document.querySelector("#pdfStatus");
 
 const fields = {
   projectName: document.querySelector("#projectName"),
   role: document.querySelector("#role"),
   specialRisks: document.querySelector("#specialRisks"),
   contractText: document.querySelector("#contractText"),
+  pdfFile: document.querySelector("#pdfFile"),
   sia118: document.querySelector("#sia118"),
   siaGaLa: document.querySelector("#siaGaLa"),
   anwuchs: document.querySelector("#anwuchs"),
   neighbors: document.querySelector("#neighbors"),
 };
+
+if (window.pdfjsLib) {
+  window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+    "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js";
+}
 
 function selectedWorkTypes() {
   return [...document.querySelectorAll("#workTypes input:checked")].map(
@@ -161,7 +168,73 @@ async function runAnalysis() {
   }
 }
 
+async function extractPdfText(file) {
+  if (!window.pdfjsLib) {
+    throw new Error("PDF-Bibliothek konnte nicht geladen werden.");
+  }
+
+  const buffer = await file.arrayBuffer();
+  const pdf = await window.pdfjsLib.getDocument({
+    data: new Uint8Array(buffer),
+  }).promise;
+
+  const pages = [];
+
+  for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
+    pdfStatus.textContent = `Lese PDF-Seite ${pageNumber} von ${pdf.numPages}...`;
+
+    const page = await pdf.getPage(pageNumber);
+    const content = await page.getTextContent();
+    const pageText = content.items
+      .map((item) => item.str)
+      .join(" ")
+      .replace(/\s+/g, " ")
+      .trim();
+
+    pages.push(pageText);
+  }
+
+  return {
+    text: pages.filter(Boolean).join("\n\n"),
+    pages: pdf.numPages,
+  };
+}
+
+async function handlePdfUpload(event) {
+  const [file] = event.target.files;
+
+  if (!file) {
+    pdfStatus.textContent = "";
+    return;
+  }
+
+  if (file.type && file.type !== "application/pdf") {
+    pdfStatus.textContent = "Bitte eine PDF-Datei auswaehlen.";
+    return;
+  }
+
+  pdfStatus.textContent = "PDF wird gelesen...";
+
+  try {
+    const result = await extractPdfText(file);
+
+    if (!result.text) {
+      fields.contractText.value =
+        "Aus dieser PDF konnte kein Text extrahiert werden. Moeglicherweise ist es ein Scan ohne OCR.";
+      pdfStatus.textContent = "Kein lesbarer PDF-Text gefunden.";
+    } else {
+      fields.contractText.value = result.text;
+      pdfStatus.textContent = `${result.pages} Seite(n) extrahiert, ${result.text.length.toLocaleString("de-CH")} Zeichen.`;
+    }
+
+    renderPrompt();
+  } catch (error) {
+    pdfStatus.textContent = error.message || "PDF konnte nicht gelesen werden.";
+  }
+}
+
 form.addEventListener("input", renderPrompt);
 copyButton.addEventListener("click", copyPrompt);
 analyzeButton.addEventListener("click", runAnalysis);
+fields.pdfFile.addEventListener("change", handlePdfUpload);
 renderPrompt();

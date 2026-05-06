@@ -108,6 +108,7 @@ legend {
 
 input[type="text"],
 select,
+input[type="file"],
 textarea {
   width: 100%;
   margin-top: 8px;
@@ -129,6 +130,19 @@ select:focus,
 textarea:focus {
   border-color: var(--focus);
   box-shadow: 0 0 0 3px rgba(182, 139, 47, 0.18);
+}
+
+input[type="file"] {
+  cursor: pointer;
+}
+
+.field-status {
+  display: block;
+  min-height: 20px;
+  margin-top: 7px;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 600;
 }
 
 fieldset {
