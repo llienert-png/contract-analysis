@@ -45,15 +45,15 @@
             <fieldset>
               <legend>Arbeiten</legend>
               <div class="chip-grid" id="workTypes">
-                <label><input type="checkbox" value="Erdarbeiten" checked /> Erdarbeiten</label>
-                <label><input type="checkbox" value="Belagsarbeiten" checked /> Belaege</label>
-                <label><input type="checkbox" value="Mauern und Einfassungen" checked /> Mauern</label>
-                <label><input type="checkbox" value="Entwaesserung und Drainage" checked /> Entwaesserung</label>
-                <label><input type="checkbox" value="Bepflanzung" checked /> Bepflanzung</label>
-                <label><input type="checkbox" value="Rasen und Begruenung" checked /> Rasen</label>
-                <label><input type="checkbox" value="Bewaesserung" /> Bewaesserung</label>
-                <label><input type="checkbox" value="Beleuchtung" /> Beleuchtung</label>
-                <label><input type="checkbox" value="Pflegeleistungen" /> Pflege</label>
+                <label><input type="checkbox" data-work-key="earthworks" value="Erdarbeiten" checked /> Erdarbeiten</label>
+                <label><input type="checkbox" data-work-key="paving" value="Belagsarbeiten" checked /> Belaege</label>
+                <label><input type="checkbox" data-work-key="walls" value="Mauern und Einfassungen" checked /> Mauern</label>
+                <label><input type="checkbox" data-work-key="drainage" value="Entwaesserung und Drainage" checked /> Entwaesserung</label>
+                <label><input type="checkbox" data-work-key="planting" value="Bepflanzung" checked /> Bepflanzung</label>
+                <label><input type="checkbox" data-work-key="lawn" value="Rasen und Begruenung" checked /> Rasen</label>
+                <label><input type="checkbox" data-work-key="irrigation" value="Bewaesserung" /> Bewaesserung</label>
+                <label><input type="checkbox" data-work-key="lighting" value="Beleuchtung" /> Beleuchtung</label>
+                <label><input type="checkbox" data-work-key="maintenance" value="Pflegeleistungen" /> Pflege</label>
               </div>
             </fieldset>
 
@@ -109,8 +109,19 @@
           <textarea id="promptOutput" spellcheck="false"></textarea>
           <section class="analysis-box" aria-label="Analyse Ergebnis">
             <div class="analysis-header">
-              <p class="eyebrow">KI-Analyse</p>
-              <span id="analysisStatus" role="status" aria-live="polite"></span>
+              <div>
+                <p class="eyebrow">KI-Analyse</p>
+                <span id="analysisStatus" role="status" aria-live="polite"></span>
+              </div>
+              <button
+                id="exportPdfButton"
+                class="secondary-button"
+                type="button"
+                aria-label="Analyse als PDF speichern"
+                title="Analyse als PDF speichern"
+              >
+                PDF speichern
+              </button>
             </div>
             <textarea
               id="analysisOutput"
@@ -127,6 +138,7 @@
     </main>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="./script.js"></script>
   </body>
 </html>

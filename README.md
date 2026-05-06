@@ -3,6 +3,8 @@
 Statische Web-App fuer Vercel, die einen Prompt fuer Werkvertragsanalysen im Schweizer Garten- und Landschaftsbau erzeugt.
 Die App kann den Prompt ausserdem ueber eine Vercel Serverless Function mit der OpenAI API analysieren.
 Vertraege koennen als Text eingefuegt oder als PDF hochgeladen werden.
+Die fertige Analyse kann als formatierter PDF-Bericht gespeichert werden.
+Die App erkennt die Browser-Sprache automatisch und unterstützt Deutsch, Englisch, Französisch und Italienisch. Andere Browser-Sprachen fallen auf Deutsch zurück.
 
 ## Lokal oeffnen
 
