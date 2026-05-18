@@ -918,7 +918,10 @@ function applyTranslations() {
     ?.setAttribute("content", i18n.meta);
 
   document.querySelector(".panel-header .eyebrow").textContent = i18n.ui.eyebrow;
-  document.querySelector(".panel-header h1").textContent = i18n.ui.headline;
+  const headline = document.querySelector(".panel-header h1");
+  if (headline) {
+    headline.textContent = i18n.ui.headline;
+  }
   document.querySelector(".panel-header p:last-child").textContent = i18n.ui.intro;
   document.querySelector(".workspace")?.setAttribute("aria-label", i18n.ui.workspaceLabel);
   document.querySelector(".tabs")?.setAttribute("aria-label", i18n.ui.tabsLabel);
@@ -1774,9 +1777,30 @@ function ensurePageSpace(doc, cursor, neededHeight) {
   return 22;
 }
 
+function cleanMarkdown(text) {
+  return text
+    .replace(/\*\*(.*?)\*\*/g, "$1")
+    .replace(/__(.*?)__/g, "$1")
+    .replace(/`([^`]+)`/g, "$1")
+    .replace(/\r\n/g, "\n")
+    .trim();
+}
+
+function writePdfLine(doc, text, options) {
+  let cursor = options.y;
+  const lines = doc.splitTextToSize(text || " ", options.maxWidth);
+
+  lines.forEach((line) => {
+    cursor = ensurePageSpace(doc, cursor, options.lineHeight);
+    doc.text(line, options.x, cursor);
+    cursor += options.lineHeight;
+  });
+
+  return cursor;
+}
+
 function writeWrappedText(doc, text, options) {
-  const pageWidth = doc.internal.pageSize.getWidth();
-  const maxWidth = options.maxWidth || pageWidth - 32;
+  const maxWidth = options.maxWidth;
   const lineHeight = options.lineHeight || 6;
   let cursor = options.y;
 
@@ -1792,6 +1816,103 @@ function writeWrappedText(doc, text, options) {
     });
 
     cursor += options.paragraphGap || 3;
+  });
+
+  return cursor;
+}
+
+function writeMarkdownReport(doc, text, options) {
+  let cursor = options.y;
+  const left = options.x;
+  const maxWidth = options.maxWidth;
+  const lines = cleanMarkdown(text).split("\n");
+
+  lines.forEach((rawLine, index) => {
+    const line = rawLine.trim();
+    const nextLine = lines[index + 1]?.trim() || "";
+
+    if (!line) {
+      cursor += 2.5;
+      return;
+    }
+
+    if (/^\|?[-:\s|]+\|?$/.test(line)) {
+      return;
+    }
+
+    if (line.includes("|") && nextLine.includes("|")) {
+      const cells = line
+        .split("|")
+        .map((cell) => cell.trim())
+        .filter(Boolean);
+
+      if (cells.length > 1) {
+        cursor = ensurePageSpace(doc, cursor, 10);
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(9);
+        doc.setTextColor(47, 107, 79);
+        cursor = writePdfLine(doc, cells.join(" / "), {
+          x: left,
+          y: cursor,
+          maxWidth,
+          lineHeight: 4.8,
+        });
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(9.5);
+        doc.setTextColor(31, 43, 37);
+        return;
+      }
+    }
+
+    const headingMatch = line.match(/^(#{1,4})\s+(.+)$/);
+    const numberedHeadingMatch = line.match(/^(\d+\.)\s+(.+)$/);
+
+    if (headingMatch || numberedHeadingMatch) {
+      const title = headingMatch ? headingMatch[2] : line;
+      cursor = ensurePageSpace(doc, cursor + 3, 14);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(headingMatch?.[1].length === 1 ? 13 : 11.5);
+      doc.setTextColor(36, 48, 42);
+      cursor = writePdfLine(doc, title, {
+        x: left,
+        y: cursor,
+        maxWidth,
+        lineHeight: 5.8,
+      });
+      cursor += 2;
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9.6);
+      doc.setTextColor(31, 43, 37);
+      return;
+    }
+
+    const bulletMatch = line.match(/^[-*]\s+(.+)$/);
+    if (bulletMatch) {
+      cursor = ensurePageSpace(doc, cursor, 8);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9.6);
+      doc.setTextColor(31, 43, 37);
+      doc.text("•", left, cursor);
+      cursor = writePdfLine(doc, bulletMatch[1], {
+        x: left + 5,
+        y: cursor,
+        maxWidth: maxWidth - 5,
+        lineHeight: 5.2,
+      });
+      cursor += 1;
+      return;
+    }
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9.6);
+    doc.setTextColor(31, 43, 37);
+    cursor = writePdfLine(doc, line, {
+      x: left,
+      y: cursor,
+      maxWidth,
+      lineHeight: 5.2,
+    });
+    cursor += 1.5;
   });
 
   return cursor;
@@ -1852,75 +1973,88 @@ function exportAnalysisPdf() {
   const date = new Date().toLocaleDateString(i18n.htmlLang);
   const fileDate = new Date().toISOString().slice(0, 10);
   const works = selectedWorkTypes();
+  const margin = 16;
+  const contentWidth = pageWidth - margin * 2;
   let y = 18;
 
-  doc.setFillColor(47, 107, 79);
-  doc.rect(0, 0, pageWidth, 28, "F");
+  doc.setFillColor(28, 78, 52);
+  doc.rect(0, 0, pageWidth, 34, "F");
+  doc.setFillColor(226, 241, 233);
+  doc.rect(0, 34, pageWidth, 2.5, "F");
   doc.setTextColor(255, 255, 255);
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(17);
-  doc.text(i18n.report.title, 16, 14);
+  doc.setFontSize(15);
+  doc.text(i18n.report.title, margin, 14, { maxWidth: contentWidth });
   doc.setFont("helvetica", "normal");
-  doc.setFontSize(10);
-  doc.text(i18n.report.subtitle, 16, 22);
+  doc.setFontSize(9.5);
+  doc.text(i18n.report.subtitle, margin, 24, { maxWidth: contentWidth });
 
-  y = 42;
+  y = 48;
   doc.setTextColor(36, 48, 42);
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(14);
-  doc.text(projectName, 16, y);
+  doc.setFontSize(13);
+  y = writePdfLine(doc, projectName, {
+    x: margin,
+    y,
+    maxWidth: contentWidth,
+    lineHeight: 6,
+  });
 
-  y += 10;
+  y += 4;
+  const metaTop = y;
+  doc.setFillColor(248, 250, 247);
+  doc.roundedRect(margin, metaTop, contentWidth, 28, 2, 2, "F");
   doc.setFont("helvetica", "normal");
-  doc.setFontSize(10);
+  doc.setFontSize(9);
   doc.setTextColor(102, 115, 108);
-  doc.text(`${i18n.report.created}: ${date}`, 16, y);
-  y += 6;
-  doc.text(`${i18n.report.focus}: ${i18n.ui.roles.unternehmer}`, 16, y);
+  doc.text(`${i18n.report.created}: ${date}`, margin + 4, y + 7);
+  doc.text(`${i18n.report.focus}: ${i18n.ui.roles.unternehmer}`, margin + 4, y + 14);
 
   if (works.length) {
-    y += 6;
-    doc.text(`${i18n.report.works}: ${works.join(", ")}`, 16, y, {
-      maxWidth: pageWidth - 32,
+    y = writePdfLine(doc, `${i18n.report.works}: ${works.join(", ")}`, {
+      x: margin + 4,
+      y: y + 21,
+      maxWidth: contentWidth - 8,
+      lineHeight: 4.6,
     });
+  } else {
+    y += 28;
   }
+  y = Math.max(y, metaTop + 32);
 
   const risks = fields.specialRisks.value.trim();
   if (risks) {
-    y += 11;
+    y = ensurePageSpace(doc, y + 8, 22);
     doc.setFont("helvetica", "bold");
     doc.setTextColor(36, 48, 42);
-    doc.text(i18n.report.notes, 16, y);
-    y += 7;
+    doc.setFontSize(10.5);
+    doc.text(i18n.report.notes, margin, y);
+    y += 6;
     doc.setFont("helvetica", "normal");
+    doc.setFontSize(9.5);
     doc.setTextColor(52, 61, 56);
     y = writeWrappedText(doc, risks, {
-      x: 16,
+      x: margin,
       y,
-      maxWidth: pageWidth - 32,
-      lineHeight: 5.5,
+      maxWidth: contentWidth,
+      lineHeight: 5.2,
       paragraphGap: 2,
     });
   }
 
-  y = ensurePageSpace(doc, y + 4, 16);
+  y = ensurePageSpace(doc, y + 6, 18);
   doc.setFillColor(248, 250, 247);
-  doc.roundedRect(16, y, pageWidth - 32, 12, 2, 2, "F");
+  doc.roundedRect(margin, y, contentWidth, 12, 2, 2, "F");
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(11);
+  doc.setFontSize(11.5);
   doc.setTextColor(47, 107, 79);
-  doc.text(exportData.label, 20, y + 8);
+  doc.text(exportData.label, margin + 4, y + 8);
 
-  y += 20;
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(10);
-  doc.setTextColor(31, 43, 37);
-  y = writeWrappedText(doc, analysis, {
-    x: 16,
+  y += 18;
+  y = writeMarkdownReport(doc, analysis, {
+    x: margin,
     y,
-    maxWidth: pageWidth - 32,
-    lineHeight: 5.4,
-    paragraphGap: 3,
+    maxWidth: contentWidth,
   });
 
   const totalPages = doc.internal.getNumberOfPages();
