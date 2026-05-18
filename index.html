@@ -5,21 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="Prompt-Generator fuer Werkvertragsanalysen im Garten- und Landschaftsbau Schweiz."
+      content="Analysis prompt for Swiss garden construction and landscaping contracts."
     />
-    <title>GaLaBau Vertragsanalyse CH</title>
+    <title>Analysis prompt for Swiss garden construction and landscaping contracts.</title>
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
     <main class="app-shell">
-      <section class="workspace" aria-label="Prompt Generator">
+      <section class="workspace" aria-label="Contractor Contract Review Cockpit">
         <div class="panel input-panel">
           <header class="panel-header">
-            <p class="eyebrow">Schweiz - Gartenbau - Landschaftsbau</p>
-            <h1>Werkvertragsanalyse</h1>
+            <div class="brand-row">
+              <div class="brand-logo-wrap">
+                <img class="brand-logo" src="./bgch.png" alt="B&G Schweiz" />
+              </div>
+              <p class="eyebrow">Schweiz - Gartenbau - Landschaftsbau</p>
+            </div>
+            <h1>Analysis prompt for Swiss garden construction and landscaping contracts.</h1>
             <p>
-              Erstelle einen strukturierten Analyse-Prompt fuer Schweizer
-              Gartenbau- und Landschaftsbauvertraege.
+              Pruefe Schweizer Gartenbau- und Landschaftsbauvertraege aus
+              Unternehmersicht: Risiken, Klauseln, Fragen und Bericht.
             </p>
           </header>
 
@@ -33,14 +38,7 @@
               />
             </label>
 
-            <label>
-              Rolle
-              <select id="role">
-                <option value="neutral">Neutral analysieren</option>
-                <option value="auftraggeber">Fokus Auftraggeber</option>
-                <option value="unternehmer">Fokus Unternehmer</option>
-              </select>
-            </label>
+            <input id="role" type="hidden" value="unternehmer" />
 
             <fieldset>
               <legend>Arbeiten</legend>
@@ -96,8 +94,8 @@
         <aside class="panel output-panel">
           <div class="toolbar">
             <div>
-              <p class="eyebrow">Generierter Prompt</p>
-              <h2>Analyseauftrag</h2>
+              <p class="eyebrow">Contractor Cockpit</p>
+              <h2>Review Center</h2>
             </div>
             <button id="copyButton" type="button" aria-label="Prompt kopieren" title="Prompt kopieren">
               Kopieren
@@ -105,8 +103,59 @@
             <button id="analyzeButton" type="button" aria-label="Analyse starten" title="Analyse starten">
               Analyse starten
             </button>
+            <button id="synthesizeButton" class="secondary-button" type="button" aria-label="Synthese erstellen" title="Synthese erstellen">
+              Synthese erstellen
+            </button>
           </div>
-          <textarea id="promptOutput" spellcheck="false"></textarea>
+          <section class="tabs" aria-label="Contractor review workspace">
+            <div class="tab-list" role="tablist" aria-label="Review views">
+              <button id="tab-overview" class="tab-button is-active" type="button" role="tab" aria-selected="true" aria-controls="panel-overview" data-tab="overview">
+                Cockpit
+              </button>
+              <button id="tab-risks" class="tab-button" type="button" role="tab" aria-selected="false" aria-controls="panel-risks" data-tab="risks">
+                Risiken
+              </button>
+              <button id="tab-clauses" class="tab-button" type="button" role="tab" aria-selected="false" aria-controls="panel-clauses" data-tab="clauses">
+                Klauseln
+              </button>
+              <button id="tab-questions" class="tab-button" type="button" role="tab" aria-selected="false" aria-controls="panel-questions" data-tab="questions">
+                Fragen
+              </button>
+              <button id="tab-report" class="tab-button" type="button" role="tab" aria-selected="false" aria-controls="panel-report" data-tab="report">
+                Bericht
+              </button>
+              <button id="tab-synthesis" class="tab-button" type="button" role="tab" aria-selected="false" aria-controls="panel-synthesis" data-tab="synthesis">
+                Synthese
+              </button>
+              <button id="tab-prompt" class="tab-button" type="button" role="tab" aria-selected="false" aria-controls="panel-prompt" data-tab="prompt">
+                Prompt
+              </button>
+            </div>
+
+            <div id="panel-overview" class="tab-panel is-active cockpit-view" role="tabpanel" aria-labelledby="tab-overview"></div>
+            <div id="panel-risks" class="tab-panel cockpit-view" role="tabpanel" aria-labelledby="tab-risks" hidden>
+              <div id="riskOutput"></div>
+            </div>
+            <div id="panel-clauses" class="tab-panel cockpit-view" role="tabpanel" aria-labelledby="tab-clauses" hidden>
+              <div id="clauseOutput"></div>
+            </div>
+            <div id="panel-questions" class="tab-panel cockpit-view" role="tabpanel" aria-labelledby="tab-questions" hidden>
+              <div id="questionOutput"></div>
+            </div>
+            <div id="panel-report" class="tab-panel" role="tabpanel" aria-labelledby="tab-report" hidden>
+              <textarea id="reportOutput" spellcheck="false" readonly></textarea>
+            </div>
+            <div id="panel-synthesis" class="tab-panel" role="tabpanel" aria-labelledby="tab-synthesis" hidden>
+              <textarea
+                id="synthesisOutput"
+                spellcheck="false"
+                placeholder="Die Synthese erscheint hier nach der Detailanalyse..."
+              ></textarea>
+            </div>
+            <div id="panel-prompt" class="tab-panel" role="tabpanel" aria-labelledby="tab-prompt" hidden>
+              <textarea id="promptOutput" spellcheck="false"></textarea>
+            </div>
+          </section>
           <section class="analysis-box" aria-label="Analyse Ergebnis">
             <div class="analysis-header">
               <div>

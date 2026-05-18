@@ -1,25 +1,34 @@
 const form = document.querySelector("#promptForm");
 const output = document.querySelector("#promptOutput");
+const overviewOutput = document.querySelector("#panel-overview");
+const riskOutput = document.querySelector("#riskOutput");
+const clauseOutput = document.querySelector("#clauseOutput");
+const questionOutput = document.querySelector("#questionOutput");
+const reportOutput = document.querySelector("#reportOutput");
+const synthesisOutput = document.querySelector("#synthesisOutput");
 const analysisOutput = document.querySelector("#analysisOutput");
 const copyButton = document.querySelector("#copyButton");
 const analyzeButton = document.querySelector("#analyzeButton");
+const synthesizeButton = document.querySelector("#synthesizeButton");
 const exportPdfButton = document.querySelector("#exportPdfButton");
 const copyStatus = document.querySelector("#copyStatus");
 const analysisStatus = document.querySelector("#analysisStatus");
 const charCount = document.querySelector("#charCount");
 const pdfStatus = document.querySelector("#pdfStatus");
+const tabButtons = [...document.querySelectorAll(".tab-button")];
+const tabPanels = [...document.querySelectorAll(".tab-panel")];
 
 const translations = {
   de: {
     htmlLang: "de",
-    title: "GaLaBau Vertragsanalyse CH",
+    title: "Analysis prompt for Swiss garden construction and landscaping contracts.",
     meta:
-      "Prompt-Generator und KI-Analyse für Werkverträge im Garten- und Landschaftsbau Schweiz.",
+      "Analysis prompt for Swiss garden construction and landscaping contracts.",
     ui: {
       eyebrow: "Schweiz - Gartenbau - Landschaftsbau",
-      headline: "Werkvertragsanalyse",
+      headline: "Analysis prompt for Swiss garden construction and landscaping contracts.",
       intro:
-        "Erstelle einen strukturierten Analyse-Prompt für Schweizer Gartenbau- und Landschaftsbauverträge.",
+        "Prüfe Schweizer Gartenbau- und Landschaftsbauverträge aus Unternehmersicht: Risiken, Klauseln, Fragen und Bericht.",
       project: "Projekt / Objekt",
       projectPlaceholder: "z.B. Umgestaltung Privatgarten Meilen",
       role: "Rolle",
@@ -40,8 +49,8 @@ const translations = {
       pdfUpload: "Vertrag als PDF hochladen",
       contractText: "Vertragstext",
       contractPlaceholder: "Hier den Werkvertrag oder die Offerte einfügen...",
-      generatedPrompt: "Generierter Prompt",
-      promptTask: "Analyseauftrag",
+      generatedPrompt: "Contractor Cockpit",
+      promptTask: "Review Center",
       copy: "Kopieren",
       analyze: "Analyse starten",
       aiAnalysis: "KI-Analyse",
@@ -159,20 +168,20 @@ const translations = {
   },
   en: {
     htmlLang: "en",
-    title: "Swiss Landscaping Contract Analysis",
+    title: "Analysis prompt for Swiss garden construction and landscaping contracts.",
     meta:
-      "Prompt generator and AI analysis for Swiss garden and landscaping work contracts.",
+      "Analysis prompt for Swiss garden construction and landscaping contracts.",
     ui: {
       eyebrow: "Switzerland - Garden construction - Landscaping",
-      headline: "Contract analysis",
+      headline: "Analysis prompt for Swiss garden construction and landscaping contracts.",
       intro:
-        "Create a structured analysis prompt for Swiss garden construction and landscaping contracts.",
+        "Review Swiss garden construction and landscaping contracts from the contractor side: risks, clauses, questions and report.",
       project: "Project / property",
       projectPlaceholder: "e.g. Private garden redesign in Meilen",
       role: "Role",
       roles: {
-        neutral: "Balanced analysis",
-        auftraggeber: "Client focus",
+        neutral: "Contractor focus",
+        auftraggeber: "Contractor focus",
         unternehmer: "Contractor focus",
       },
       worksLegend: "Works",
@@ -187,8 +196,8 @@ const translations = {
       pdfUpload: "Upload contract as PDF",
       contractText: "Contract text",
       contractPlaceholder: "Paste the work contract or quotation here...",
-      generatedPrompt: "Generated prompt",
-      promptTask: "Analysis task",
+      generatedPrompt: "Contractor cockpit",
+      promptTask: "Review center",
       copy: "Copy",
       analyze: "Start analysis",
       aiAnalysis: "AI analysis",
@@ -243,17 +252,39 @@ const translations = {
       works: "Relevant works",
       risks: "Special notes / risks",
       roles: {
-        neutral: "Analyse both parties' positions in a balanced way.",
+        neutral: "Analyse the contract from the garden/landscaping contractor's perspective.",
         auftraggeber:
           "Place special emphasis on risks, cost consequences and protection mechanisms for the client.",
         unternehmer:
           "Place special emphasis on payment entitlement, variations, client cooperation duties and liability limits for the contractor.",
       },
       intro:
-        "Analyse the following work contract for garden construction and landscaping works in Switzerland from a legal, technical and commercial perspective.",
+        "Analyse the following work contract for garden construction and landscaping works in Switzerland from the contractor's legal, technical and commercial perspective.",
       legal:
-        "Consider Swiss law and relevant Swiss garden construction and landscaping practice. Do not provide binding legal advice; provide a structured risk and contract analysis. Clearly flag points that should be reviewed by a Swiss legal or technical specialist.",
+        "Consider Swiss law and relevant Swiss garden construction and landscaping practice. Do not provide binding legal advice; provide a structured contractor-side risk and contract analysis. Clearly flag points that should be reviewed by a Swiss legal or technical specialist.",
       normTitle: "Standards and special review points:",
+      sourceTitle: "Source and evidence rules:",
+      sourceInstructions: [
+        "Use the contract text and appendices as the primary source. Cite contract sections, headings or short excerpts where available.",
+        "Base legal statements on Swiss law, especially the Swiss Code of Obligations (CO/OR) Art. 363 et seq. for contracts for work and services and Art. 367-371 for inspection, defect notices and limitation periods where relevant.",
+        "For Swiss Code of Obligations work-contract risks, check in particular: formation and scope of the work contract, contractor duties, remuneration, fixed price versus estimate, client acceptance, inspection duties, defect notices, warranty remedies, limitation periods, termination, impossibility, delay and burden of proof.",
+        "Preferred legal source name: Swiss Code of Obligations, SR 220, Fedlex: https://www.fedlex.admin.ch/eli/cc/27/317_321_377/en",
+        "Preferred standard source name where applicable: SIA 118 General Conditions for Construction Work, official SIA shop/platform. Do not quote paid SIA text unless it is provided in the contract.",
+        "Check relevant JardinSuisse materials where applicable, especially technical leaflets, industry guidance, maintenance principles, quality charters or regional JardinSuisse documents. Treat them as industry practice/guidance unless the contract makes them binding.",
+        "Use SIA 118 and other SIA standards only if they are contractually agreed, expressly referenced or clearly relevant as a standard to be checked. State that basis.",
+        "Check SIA-related records and project documents where available: acceptance records, site meeting minutes, construction journals, measurement records, daywork reports, change-order records, defect lists, handover protocols, plans, specifications and order-of-precedence clauses.",
+        "If SIA records or SIA-referenced forms are missing, identify which records should be requested before signing or before starting work.",
+        "Where relevant, consider cantonal/municipal permits, public-law requirements, neighbour rights, boundary distances, easements, environmental, water and soil protection requirements.",
+        "If the source or contractual basis is missing or cannot be verified, write 'source/contractual basis to be verified' instead of making a certain claim.",
+        "Separate hard contract/legal findings from practical recommendations and industry practice.",
+      ],
+      riskTitle: "Risk method:",
+      riskInstructions: [
+        "Assess every risk from the contractor's perspective with severity (high/medium/low), probability (high/medium/low), financial impact, schedule impact and evidence required.",
+        "For every risk, name the affected contract clause or write 'no clear contract clause found'.",
+        "Explain why the risk matters to the contractor: payment, variation, margin, liability, schedule, acceptance, warranty or burden of proof.",
+        "Give concrete countermeasures: clause wording, question, appendix, reservation, photo/report evidence or approval workflow.",
+      ],
       norms: {
         sia118:
           "Review SIA 118 only where it is contractually agreed or reasonably relevant as an industry standard.",
@@ -270,6 +301,9 @@ const translations = {
         "Contracting parties, property, project location and scope of work",
         "Description of garden construction and landscaping works",
         "Plans, bill of quantities, quotations, technical appendices and order of precedence",
+        "SIA-relevant records, minutes, site reports, measurement records, daywork reports, change orders, acceptance records and defect lists",
+        "JardinSuisse guidance, technical leaflets, quality charters, maintenance recommendations and regional association documents if referenced or practically relevant",
+        "Schweizer Obligationenrecht Werkvertragsrisiken: VergÃ¼tung, Kostenvoranschlag/Festpreis, NachtrÃ¤ge, Abnahme, PrÃ¼fung, MÃ¤ngelrÃ¼ge, GewÃ¤hrleistung, VerjÃ¤hrung, KÃ¼ndigung, Verzug und Beweislast",
         "Permits, neighbour rights, boundary distances, easements and public-law requirements",
         "Ground conditions, soil, contamination, utility lines, drainage and dewatering",
         "Deadlines, construction programme, weather risks, seasonal dependencies and planting periods",
@@ -288,17 +322,17 @@ const translations = {
       ],
       outputTitle: "Structure the analysis with:",
       outputs: [
-        "Brief conclusion",
-        "Key risks for the client",
-        "Key risks for the garden/landscaping contractor",
-        "Technical and practical execution risks",
-        "Notable clauses with reasoning",
-        "Concrete wording suggestions for fair and clear clauses",
-        "Open questions before signing",
-        "Recommended appendices, evidence and checks",
+        "Brief contractor-side conclusion",
+        "Source matrix: contract clause / legal source / SIA source / JardinSuisse or industry source / relevance / uncertainty",
+        "Risk register table: risk / source / severity / probability / cost impact / schedule impact / evidence required / countermeasure",
+        "Top 5 negotiation positions for the contractor",
+        "Clause-by-clause review with notable wording and priority",
+        "Concrete amendment wording to protect the contractor",
+        "Open questions for the client, planner or construction manager",
+        "Recommended appendices, SIA records, JardinSuisse references, evidence, reports, photos and checks before signing",
       ],
       emphasis:
-        "Pay particular attention to clear scope boundaries, interfaces with other contractors, unforeseen soil or utility conditions, weather and seasonal risks, plant quality, maintenance, establishment success, acceptance and defect notices under Swiss practice.",
+        "Pay particular attention to clear scope boundaries, variation triggers, daywork and extra costs, interfaces with other contractors, unforeseen soil or utility conditions, weather and seasonal risks, plant quality, maintenance, establishment success, acceptance, defect notices and evidence preservation under Swiss practice.",
       contract: "Here is the contract to analyse:",
       contractPlaceholder: "[Paste contract text here]",
       answerLanguage: "Answer in English.",
@@ -672,12 +706,7 @@ function applyTranslations() {
 
   setLabelForControl(fields.projectName, i18n.ui.project);
   fields.projectName.placeholder = i18n.ui.projectPlaceholder;
-  setLabelForControl(fields.role, i18n.ui.role);
-  fields.role.querySelector("[value='neutral']").textContent = i18n.ui.roles.neutral;
-  fields.role.querySelector("[value='auftraggeber']").textContent =
-    i18n.ui.roles.auftraggeber;
-  fields.role.querySelector("[value='unternehmer']").textContent =
-    i18n.ui.roles.unternehmer;
+  fields.role.value = "unternehmer";
 
   const fieldsets = document.querySelectorAll("fieldset");
   fieldsets[0].querySelector("legend").textContent = i18n.ui.worksLegend;
@@ -716,19 +745,369 @@ function selectedWorkTypes() {
   });
 }
 
-function roleText(role) {
-  return i18n.prompt.roles[role] || i18n.prompt.roles.neutral;
+function roleText() {
+  return i18n.prompt.roles.unternehmer;
 }
 
 function checkedLine(condition, text) {
   return condition ? `- ${text}\n` : "";
 }
 
+function currentContext() {
+  return {
+    project: fields.projectName.value.trim(),
+    risks: fields.specialRisks.value.trim(),
+    contract: fields.contractText.value.trim(),
+    works: selectedWorkTypes(),
+    usesSia118: fields.sia118.checked,
+    usesStandards: fields.siaGaLa.checked,
+    checksPlantGuarantee: fields.anwuchs.checked,
+    checksNeighbors: fields.neighbors.checked,
+  };
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function buildRiskItems() {
+  const context = currentContext();
+  const items = [
+    {
+      level: "High",
+      title: "OR work-contract risks",
+      detail: "Check Swiss Code of Obligations work-contract issues: remuneration, fixed price or estimate, acceptance, inspection, defect notice, warranty remedies, limitation periods, termination and burden of proof.",
+      action: "Map each OR risk to a contract clause and add contractor-protective wording where the contract is silent or one-sided.",
+    },
+    {
+      level: "High",
+      title: "Payment entitlement",
+      detail: "Check due dates, instalments, retention, default interest, VAT and whether payment depends on client-side approvals.",
+      action: "Clarify payment milestones and consequences of late payment before signature.",
+    },
+    {
+      level: "High",
+      title: "Variations and extra costs",
+      detail: "Review written change-order rules, daywork, quantity changes, unforeseen conditions and pricing approval.",
+      action: "Add a fast written approval route for variations and site instructions.",
+    },
+    {
+      level: "High",
+      title: "Client cooperation",
+      detail: "Confirm duties for access, plans, approvals, water, power, decisions and third-party coordination.",
+      action: "Tie deadlines and extra costs to timely client cooperation.",
+    },
+    {
+      level: "Medium",
+      title: "Scope boundaries",
+      detail: "Look for unclear exclusions, interfaces with other contractors and protection of existing assets.",
+      action: "Attach exclusions, assumptions and order of precedence to the contract.",
+    },
+    {
+      level: "Medium",
+      title: "JardinSuisse guidance",
+      detail: "Check whether JardinSuisse leaflets, quality charters, maintenance principles or regional association guidance are referenced or useful as industry practice.",
+      action: "Clarify whether JardinSuisse materials are binding contract documents or only guidance for execution and quality.",
+    },
+    {
+      level: "Medium",
+      title: "SIA records and proof",
+      detail: "Check whether SIA-related protocols, site reports, measurements, daywork reports, change orders, acceptance records and defect lists exist.",
+      action: "Request missing SIA records or define which forms/protocols will be used before work starts.",
+    },
+    {
+      level: "Medium",
+      title: "Acceptance and defects",
+      detail: "Review partial acceptance, final acceptance, defect notice deadlines, documentation and burden of proof.",
+      action: "Use handover protocols, photo records and written defect-response procedures.",
+    },
+    {
+      level: "Medium",
+      title: "Liability and insurance",
+      detail: "Check damage to utilities, neighbouring property, existing plants, walls, paving and consequential losses.",
+      action: "Confirm insurance duties and negotiate liability limits where possible.",
+    },
+  ];
+
+  if (context.works.includes(i18n.workTypes.planting) || context.works.includes(i18n.workTypes.lawn)) {
+    items.push({
+      level: "Medium",
+      title: "Plant establishment",
+      detail: "Plant quality, watering, care, replacement duties and establishment guarantees need clear control limits.",
+      action: "Separate contractor planting duties from client maintenance duties after handover.",
+    });
+  }
+
+  if (context.risks) {
+    items.unshift({
+      level: "High",
+      title: "Special project note",
+      detail: context.risks,
+      action: "Translate this note into pricing, programme, exclusion and evidence wording.",
+    });
+  }
+
+  return items;
+}
+
+function buildClauseItems() {
+  return [
+    {
+      area: "OR work-contract risks",
+      review: "Does the contract handle remuneration, fixed price/estimate, acceptance, inspection, defect notices, warranty remedies, limitation periods, termination, delay and proof?",
+      contractorPosition: "Avoid silent gaps under Swiss Code of Obligations default rules where specific contractor-friendly wording is needed.",
+    },
+    {
+      area: "Scope and exclusions",
+      review: "Are works, exclusions, assumptions, interfaces and document precedence clear?",
+      contractorPosition: "Avoid open-ended obligations and undefined interfaces.",
+    },
+    {
+      area: "Payment terms",
+      review: "Are instalments, due dates, retention, default interest and VAT treatment workable?",
+      contractorPosition: "Secure predictable cash flow and avoid client-controlled payment triggers.",
+    },
+    {
+      area: "Variations / daywork",
+      review: "Can additional work, changed quantities and unforeseen conditions be charged?",
+      contractorPosition: "Require written instructions, pricing rules and evidence records.",
+    },
+    {
+      area: "SIA records / evidence",
+      review: "Are SIA-related protocols, site reports, measurements, daywork reports, acceptance records and defect lists defined?",
+      contractorPosition: "Make the required records part of the contract workflow and preserve proof for payment, delay and defect issues.",
+    },
+    {
+      area: "JardinSuisse / industry practice",
+      review: "Are JardinSuisse leaflets, quality charters, maintenance principles or regional guidance referenced?",
+      contractorPosition: "Use them as quality/practice support, but avoid unintended binding duties unless they are priced and contractually accepted.",
+    },
+    {
+      area: "Client cooperation",
+      review: "Are access, permits, plans, water, power, decisions and third-party interfaces assigned?",
+      contractorPosition: "Make delay and cost consequences explicit when client duties are late.",
+    },
+    {
+      area: "Schedule and weather",
+      review: "Do weather, seasonal planting windows and shifted site readiness extend deadlines?",
+      contractorPosition: "Protect against penalties for conditions outside contractor control.",
+    },
+    {
+      area: "Acceptance / defects",
+      review: "Are partial acceptance, defect notice deadlines and warranty start dates defined?",
+      contractorPosition: "Use practical acceptance records and short, clear response routes.",
+    },
+    {
+      area: "Liability / insurance",
+      review: "Are utility strikes, existing assets, neighbouring property and consequential losses handled?",
+      contractorPosition: "Cap exposure and preserve exclusions for hidden or client-caused risks.",
+    },
+  ];
+}
+
+function buildQuestionItems() {
+  const context = currentContext();
+  const questions = [
+    "Is SIA 118 expressly agreed, only referenced, or not part of the contract?",
+    "Which Swiss Code of Obligations work-contract risks are not clearly regulated: remuneration, fixed price/estimate, acceptance, defects, limitation periods, termination or proof?",
+    "Does the contract change or override default OR work-contract rules, and is that change acceptable for the contractor?",
+    "Are all contractor exclusions and client-provided services clearly listed?",
+    "Does the contract require written approval before variations, daywork or extra costs are payable?",
+    "Which SIA records, site reports, measurement sheets, daywork reports and acceptance protocols must be used?",
+    "Are missing SIA records or SIA-referenced forms listed as documents to request before signing?",
+    "Are JardinSuisse recommendations, technical leaflets, quality charters or regional documents referenced in the contract?",
+    "If JardinSuisse material is referenced, is it binding, only guidance, or an execution standard that must be priced?",
+    "Who bears risk for unforeseen soil, rock, contamination, old utilities or drainage conditions?",
+    "Are site access, storage areas, water, power and plan approvals duties of the client?",
+    "What happens if weather, seasonal planting windows or delayed client decisions shift the programme?",
+    "Are payment due dates, instalments, retention and default consequences clear enough?",
+    "Are partial acceptance, final acceptance and defect notice procedures workable for the contractor?",
+    "Are plant establishment, maintenance and replacement duties limited to what the contractor controls?",
+    "Are liability caps, insurance duties and exclusions for consequential loss acceptable?",
+  ];
+
+  if (context.risks) {
+    questions.push(`Do the special notes change pricing, schedule, exclusions or evidence requirements: ${context.risks}`);
+  }
+
+  return questions;
+}
+
+function renderOverview() {
+  const context = currentContext();
+  const risks = buildRiskItems();
+  const clauses = buildClauseItems();
+  const questions = buildQuestionItems();
+  const contractStatus = context.contract ? `${context.contract.length.toLocaleString(i18n.htmlLang)} chars` : "No contract text";
+  const works = context.works.length ? context.works.join(", ") : "No work types selected";
+
+  overviewOutput.dataset.copyText = `Contractor cockpit
+Project: ${context.project || i18n.report.defaultProject}
+Works: ${works}
+Contract text: ${contractStatus}
+Open risks: ${risks.length}
+Clause areas: ${clauses.length}
+Follow-up questions: ${questions.length}`;
+
+  overviewOutput.innerHTML = `
+    <div class="cockpit-summary">
+      <article class="metric-card">
+        <span>Contract text</span>
+        <strong>${escapeHtml(contractStatus)}</strong>
+      </article>
+      <article class="metric-card">
+        <span>Risk areas</span>
+        <strong>${risks.length}</strong>
+      </article>
+      <article class="metric-card">
+        <span>Clause checks</span>
+        <strong>${clauses.length}</strong>
+      </article>
+      <article class="metric-card">
+        <span>Open questions</span>
+        <strong>${questions.length}</strong>
+      </article>
+    </div>
+    <section class="cockpit-band">
+      <div>
+        <p class="eyebrow">Project</p>
+        <h3>${escapeHtml(context.project || i18n.report.defaultProject)}</h3>
+        <p>${escapeHtml(works)}</p>
+      </div>
+      <div class="review-status">
+        <span class="status-pill">Contractor focus</span>
+        <span class="status-pill">${context.usesSia118 ? "SIA 118 checked" : "SIA 118 off"}</span>
+        <span class="status-pill">${context.checksPlantGuarantee ? "Plant guarantee checked" : "Plant guarantee off"}</span>
+      </div>
+    </section>
+    <div class="priority-grid">
+      ${risks.slice(0, 3).map((risk) => `
+        <article class="risk-card priority-${risk.level.toLowerCase()}">
+          <span>${escapeHtml(risk.level)}</span>
+          <h3>${escapeHtml(risk.title)}</h3>
+          <p>${escapeHtml(risk.action)}</p>
+        </article>
+      `).join("")}
+    </div>
+  `;
+}
+
+function renderRiskCards() {
+  const risks = buildRiskItems();
+  riskOutput.dataset.copyText = buildRiskSummary();
+  riskOutput.innerHTML = risks.map((risk) => `
+    <article class="risk-card priority-${risk.level.toLowerCase()}">
+      <span>${escapeHtml(risk.level)}</span>
+      <h3>${escapeHtml(risk.title)}</h3>
+      <p>${escapeHtml(risk.detail)}</p>
+      <strong>${escapeHtml(risk.action)}</strong>
+    </article>
+  `).join("");
+}
+
+function renderClauseReview() {
+  const clauses = buildClauseItems();
+  clauseOutput.dataset.copyText = `Contractor clause review
+
+${clauses.map((clause, index) => `${index + 1}. ${clause.area}
+Review: ${clause.review}
+Contractor position: ${clause.contractorPosition}`).join("\n\n")}`;
+  clauseOutput.innerHTML = clauses.map((clause, index) => `
+    <article class="clause-row">
+      <span>${index + 1}</span>
+      <div>
+        <h3>${escapeHtml(clause.area)}</h3>
+        <p>${escapeHtml(clause.review)}</p>
+        <strong>${escapeHtml(clause.contractorPosition)}</strong>
+      </div>
+    </article>
+  `).join("");
+}
+
+function renderQuestions() {
+  const questions = buildQuestionItems();
+  questionOutput.dataset.copyText = buildQuestionList();
+  questionOutput.innerHTML = `
+    <ol class="question-list">
+      ${questions.map((question) => `<li>${escapeHtml(question)}</li>`).join("")}
+    </ol>
+  `;
+}
+
+function buildRiskSummary() {
+  const context = currentContext();
+  const works = context.works.length ? context.works.join(", ") : "No work types selected";
+  const specialRisks = context.risks || "No special risks added yet.";
+  const risks = buildRiskItems();
+
+  return `Contractor risk dashboard
+
+Project
+- ${context.project || i18n.report.defaultProject}
+
+Relevant works
+- ${works}
+
+Highest-priority contractor risks to review
+${risks.map((risk, index) => `${index + 1}. ${risk.title}: ${risk.detail}`).join("\n")}
+
+Special notes
+- ${specialRisks}`;
+}
+
+function buildQuestionList() {
+  const questions = buildQuestionItems();
+
+  return `Contractor follow-up questions
+
+Use these before signing or before sending the contract for legal review.
+
+${questions.map((question, index) => `${index + 1}. ${question}`).join("\n")}`;
+}
+
+function buildReportDraft() {
+  const context = currentContext();
+  const works = context.works.length ? context.works.join(", ") : "To be confirmed";
+
+  return `Contractor contract review draft
+
+Project
+${context.project || i18n.report.defaultProject}
+
+Works
+${works}
+
+Contractor-side conclusion
+The contract should be reviewed primarily for payment security, recoverability of variations, client cooperation duties, liability limits, acceptance mechanics and evidence requirements. Any unclear scope, missing exclusion or one-sided warranty language should be clarified before signature.
+
+Negotiation priorities
+- Clarify Swiss Code of Obligations work-contract risks: remuneration basis, fixed price or estimate, acceptance, inspection, defect notices, warranty remedies, limitation periods, termination and burden of proof.
+- Add clear wording for written change orders, daywork, extra quantities and unforeseen conditions.
+- Tie schedule duties to timely client cooperation, approvals, access and suitable weather/site conditions.
+- Define acceptance, partial acceptance and defect notice procedures with practical documentation requirements.
+- Limit plant establishment and maintenance obligations to contractor-controlled conditions.
+- Clarify liability, insurance, consequential loss, existing utilities and neighbouring property risks.
+
+Evidence checklist
+- Signed plans, bill of quantities, exclusions and order of precedence.
+- Photo documentation of existing site, utilities, access constraints and neighbouring boundaries.
+- Written approvals for variations, daywork, substitutions and schedule changes.
+- SIA-related records, site meeting minutes, construction journals, measurement records, daywork reports and change-order records.
+- Relevant JardinSuisse leaflets, quality charters, maintenance guidance or regional association documents if referenced.
+- Delivery notes, plant quality records, maintenance instructions and handover protocol.
+- Acceptance protocol, defect list, deadline records and client correspondence.
+
+Special notes
+${context.risks || "No special notes added yet."}`;
+}
+
 function buildPrompt() {
-  const project = fields.projectName.value.trim();
-  const risks = fields.specialRisks.value.trim();
-  const contract = fields.contractText.value.trim();
-  const works = selectedWorkTypes();
+  const { project, risks, contract, works } = currentContext();
   const prompt = i18n.prompt;
 
   const context = [
@@ -759,12 +1138,40 @@ function buildPrompt() {
 
   const checks = prompt.checks.map((item, index) => `${index + 1}. ${item}`).join("\n");
   const outputs = prompt.outputs.map((item) => `- ${item}`).join("\n");
+  const sourceTitle = prompt.sourceTitle || "Source and evidence rules:";
+  const sourceInstructions = prompt.sourceInstructions || [
+    "Use the contract text and appendices as the primary source. Cite contract sections, headings or short excerpts where available.",
+    "Base legal statements on Swiss law, especially the Swiss Code of Obligations (CO/OR) Art. 363 et seq. for contracts for work and services and Art. 367-371 for inspection, defect notices and limitation periods where relevant.",
+    "For Swiss Code of Obligations work-contract risks, check in particular: formation and scope of the work contract, contractor duties, remuneration, fixed price versus estimate, client acceptance, inspection duties, defect notices, warranty remedies, limitation periods, termination, impossibility, delay and burden of proof.",
+    "Preferred legal source name: Swiss Code of Obligations, SR 220, Fedlex: https://www.fedlex.admin.ch/eli/cc/27/317_321_377/en",
+    "Preferred standard source name where applicable: SIA 118 General Conditions for Construction Work, official SIA shop/platform. Do not quote paid SIA text unless it is provided in the contract.",
+    "Check relevant JardinSuisse materials where applicable, especially technical leaflets, industry guidance, maintenance principles, quality charters or regional JardinSuisse documents. Treat them as industry practice/guidance unless the contract makes them binding.",
+    "Use SIA 118 and other SIA standards only if they are contractually agreed, expressly referenced or clearly relevant as a standard to be checked. State that basis.",
+    "Check SIA-related records and project documents where available: acceptance records, site meeting minutes, construction journals, measurement records, daywork reports, change-order records, defect lists, handover protocols, plans, specifications and order-of-precedence clauses.",
+    "If SIA records or SIA-referenced forms are missing, identify which records should be requested before signing or before starting work.",
+    "If the source or contractual basis is missing or cannot be verified, write 'source/contractual basis to be verified' instead of making a certain claim.",
+  ];
+  const riskTitle = prompt.riskTitle || "Risk method:";
+  const riskInstructions = prompt.riskInstructions || [
+    "Assess every risk from the contractor's perspective with severity, probability, financial impact, schedule impact and evidence required.",
+    "For every risk, name the affected contract clause or write 'no clear contract clause found'.",
+    "Explain why the risk matters to the contractor: payment, variation, margin, liability, schedule, acceptance, warranty or burden of proof.",
+    "Give concrete countermeasures: clause wording, question, appendix, reservation, photo/report evidence or approval workflow.",
+  ];
+  const sources = sourceInstructions.map((item) => `- ${item}`).join("\n");
+  const risksMethod = riskInstructions.map((item) => `- ${item}`).join("\n");
 
   return `${prompt.intro}
 
 ${roleText(fields.role.value)}
 
 ${context ? `${context}\n` : ""}${prompt.legal}
+
+${sourceTitle}
+${sources}
+
+${riskTitle}
+${risksMethod}
 
 ${prompt.normTitle}
 ${normBlock || `- ${prompt.norms.fallback}\n`}
@@ -784,23 +1191,94 @@ ${contract || prompt.contractPlaceholder}`;
 
 function renderPrompt() {
   output.value = buildPrompt();
+  renderOverview();
+  renderRiskCards();
+  renderClauseReview();
+  renderQuestions();
+  reportOutput.value = buildReportDraft();
   charCount.textContent = `${output.value.length.toLocaleString(i18n.htmlLang)} ${i18n.status.chars}`;
 }
 
 function updateExportAvailability() {
   exportPdfButton.disabled = !analysisOutput.value.trim();
+  synthesizeButton.disabled = !analysisOutput.value.trim();
 }
 
 async function copyPrompt() {
-  await navigator.clipboard.writeText(output.value);
+  const activePanel = document.querySelector(".tab-panel.is-active");
+  const activeText =
+    activePanel?.querySelector("textarea")?.value ||
+    activePanel?.dataset.copyText ||
+    activePanel?.querySelector("[data-copy-text]")?.dataset.copyText;
+  await navigator.clipboard.writeText(activeText || output.value);
   copyStatus.textContent = i18n.status.copied;
   window.setTimeout(() => {
     copyStatus.textContent = "";
   }, 1800);
 }
 
+function activateTab(tabName) {
+  tabButtons.forEach((button) => {
+    const isActive = button.dataset.tab === tabName;
+    button.classList.toggle("is-active", isActive);
+    button.setAttribute("aria-selected", String(isActive));
+  });
+
+  tabPanels.forEach((panel) => {
+    const isActive = panel.id === `panel-${tabName}`;
+    panel.classList.toggle("is-active", isActive);
+    panel.hidden = !isActive;
+  });
+}
+
+function buildSynthesisPrompt() {
+  const context = currentContext();
+  const works = context.works.length ? context.works.join(", ") : "To be confirmed";
+
+  return `Create a contractor-side executive synthesis from the detailed analysis below.
+
+Do not repeat the full analysis. Compress it into a decision memo for a Swiss garden construction / landscaping contractor.
+
+Synthesis rules:
+- Use only the detailed analysis, contract text, cockpit risks and listed sources as input.
+- Preserve source discipline: cite contract clauses, Swiss Code of Obligations / OR work-contract risks, SIA records, JardinSuisse guidance or write "source/contractual basis to be verified".
+- Separate legal contract risks from technical execution risks and commercial negotiation risks.
+- Focus on contractor exposure: payment, variations, margin, delay, acceptance, warranty, defect notice, liability, proof and missing records.
+- If the detailed analysis is uncertain, keep that uncertainty instead of inventing a conclusion.
+- Output in the same language as the detailed analysis where possible.
+
+Required output:
+1. Decision: Sign / Sign only with changes / Do not sign yet.
+2. One-paragraph executive conclusion.
+3. Top 5 deal breakers for the contractor, each with source and countermeasure.
+4. Negotiation script: concise wording the contractor can send to the client/planner.
+5. Missing documents and records: SIA records, JardinSuisse references, plans, measurements, daywork reports, acceptance forms and defect lists.
+6. Final amendment wording for the highest-priority clauses.
+7. What to ask a Swiss legal or technical specialist to verify.
+
+Project: ${context.project || i18n.report.defaultProject}
+Works: ${works}
+Special notes: ${context.risks || "None"}
+
+Cockpit risk summary:
+${buildRiskSummary()}
+
+Clause review:
+${buildClauseItems().map((item, index) => `${index + 1}. ${item.area}: ${item.review} Contractor position: ${item.contractorPosition}`).join("\n")}
+
+Follow-up questions:
+${buildQuestionItems().map((item, index) => `${index + 1}. ${item}`).join("\n")}
+
+Report draft:
+${buildReportDraft()}
+
+Detailed AI analysis:
+${analysisOutput.value.trim()}`;
+}
+
 async function runAnalysis() {
   analyzeButton.disabled = true;
+  synthesizeButton.disabled = true;
   exportPdfButton.disabled = true;
   analysisStatus.textContent = i18n.status.running;
   analysisOutput.value = "";
@@ -823,6 +1301,7 @@ async function runAnalysis() {
     }
 
     analysisOutput.value = data.analysis || i18n.status.noAnalysisReceived;
+    synthesisOutput.value = "";
     analysisStatus.textContent = i18n.status.done;
     updateExportAvailability();
   } catch (error) {
@@ -830,6 +1309,46 @@ async function runAnalysis() {
     analysisStatus.textContent = i18n.status.error;
   } finally {
     analyzeButton.disabled = false;
+  }
+}
+
+async function runSynthesis() {
+  const analysis = analysisOutput.value.trim();
+
+  if (!analysis) {
+    analysisStatus.textContent = "Bitte zuerst Detailanalyse starten.";
+    return;
+  }
+
+  synthesizeButton.disabled = true;
+  analysisStatus.textContent = "Synthese läuft...";
+  synthesisOutput.value = "";
+  activateTab("synthesis");
+
+  try {
+    const response = await fetch("/api/analyze", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        prompt: buildSynthesisPrompt(),
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || i18n.status.analysisFailed);
+    }
+
+    synthesisOutput.value = data.analysis || i18n.status.noAnalysisReceived;
+    analysisStatus.textContent = "Synthese fertig";
+  } catch (error) {
+    synthesisOutput.value = error.message;
+    analysisStatus.textContent = i18n.status.error;
+  } finally {
+    updateExportAvailability();
   }
 }
 
@@ -1068,8 +1587,13 @@ applyTranslations();
 form.addEventListener("input", renderPrompt);
 copyButton.addEventListener("click", copyPrompt);
 analyzeButton.addEventListener("click", runAnalysis);
+synthesizeButton.addEventListener("click", runSynthesis);
 exportPdfButton.addEventListener("click", exportAnalysisPdf);
 analysisOutput.addEventListener("input", updateExportAvailability);
+synthesisOutput.addEventListener("input", updateExportAvailability);
 fields.pdfFile.addEventListener("change", handlePdfUpload);
+tabButtons.forEach((button) => {
+  button.addEventListener("click", () => activateTab(button.dataset.tab));
+});
 updateExportAvailability();
 renderPrompt();
