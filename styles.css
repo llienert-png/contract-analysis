@@ -10,7 +10,7 @@
   --accent-strong: #145a3d;
   --accent-soft: #e2f1e9;
   --warning: #9a6a12;
-  --shadow: 0 16px 38px rgba(20, 39, 30, 0.11);
+  --shadow: 0 10px 24px rgba(20, 39, 30, 0.08);
   --radius: 8px;
   --control: 46px;
   font-family:
@@ -30,9 +30,7 @@ html {
 body {
   margin: 0;
   color: var(--text);
-  background:
-    linear-gradient(180deg, rgba(230, 239, 231, 0.75), rgba(238, 242, 239, 0) 360px),
-    var(--bg);
+  background: var(--bg);
 }
 
 button,
@@ -102,10 +100,6 @@ textarea:focus-visible {
   box-shadow: var(--shadow);
 }
 
-.panel:hover {
-  border-color: rgba(33, 122, 85, 0.2);
-}
-
 .input-panel {
   overflow: hidden;
 }
@@ -123,9 +117,7 @@ textarea:focus-visible {
 .panel-header {
   padding: 20px 22px 18px;
   border-bottom: 1px solid var(--line);
-  background:
-    linear-gradient(135deg, rgba(226, 241, 233, 0.95), rgba(255, 255, 255, 0.48)),
-    var(--surface);
+  background: var(--surface);
 }
 
 .brand-row {
@@ -143,7 +135,6 @@ textarea:focus-visible {
   border: 1px solid rgba(20, 90, 61, 0.12);
   border-radius: var(--radius);
   background: #fff;
-  box-shadow: 0 12px 26px rgba(20, 39, 30, 0.08);
 }
 
 .brand-logo {
@@ -167,8 +158,6 @@ textarea:focus-visible {
 .panel-header p:last-child {
   max-width: 66ch;
   margin: 14px 0 0;
-  padding-left: 14px;
-  border-left: 3px solid rgba(33, 122, 85, 0.32);
   color: var(--muted);
   font-size: 1rem;
   line-height: 1.6;
@@ -208,7 +197,7 @@ fieldset {
   border: 1px solid var(--line);
   border-radius: var(--radius);
   padding: 13px;
-  background: var(--surface-muted);
+  background: #fff;
 }
 
 legend {
@@ -296,15 +285,16 @@ textarea {
 
 .chip-grid label {
   min-height: 40px;
-  border: 1px solid #d2dcd5;
-  border-radius: var(--radius);
-  padding: 9px 10px;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  padding: 8px 0;
   background: #fff;
 }
 
 .chip-grid label:has(input:checked) {
-  border-color: rgba(33, 122, 85, 0.4);
-  background: var(--accent-soft);
+  color: var(--accent-strong);
+  background: #fff;
 }
 
 .switch-list {
@@ -373,10 +363,9 @@ textarea {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  padding: 5px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: var(--surface-muted);
+  padding: 0 0 8px;
+  border-bottom: 1px solid var(--line);
+  background: transparent;
 }
 
 .tab-button {
@@ -391,13 +380,16 @@ textarea {
 }
 
 .tab-button:hover {
-  color: #fff;
+  color: var(--accent-strong);
+  background: var(--accent-soft);
+  box-shadow: none;
+  transform: none;
 }
 
 .tab-button.is-active {
-  color: #fff;
-  background: var(--accent);
-  box-shadow: 0 8px 18px rgba(33, 122, 85, 0.16);
+  color: var(--accent-strong);
+  background: transparent;
+  box-shadow: inset 0 -2px 0 var(--accent);
 }
 
 .tab-panel {
@@ -428,14 +420,15 @@ textarea {
 .cockpit-band,
 .risk-card,
 .clause-row {
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
+  border: 0;
+  border-radius: 0;
   background: #fff;
 }
 
 .metric-card {
   min-height: 74px;
-  padding: 12px;
+  padding: 0 0 10px;
+  border-bottom: 1px solid var(--line);
 }
 
 .metric-card span,
@@ -460,8 +453,9 @@ textarea {
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 16px;
   margin-top: 10px;
-  padding: 16px;
-  background: var(--surface-muted);
+  padding: 12px 0 0;
+  border-top: 1px solid var(--line);
+  background: #fff;
 }
 
 .cockpit-band h3,
@@ -490,10 +484,10 @@ textarea {
 .status-pill {
   min-height: 28px;
   padding: 6px 9px;
-  border: 1px solid rgba(33, 122, 85, 0.18);
-  border-radius: 999px;
+  border: 0;
+  border-radius: 0;
   color: var(--accent-strong);
-  background: var(--accent-soft);
+  background: transparent;
   font-size: 0.78rem;
   font-weight: 800;
 }
@@ -510,8 +504,8 @@ textarea {
 }
 
 .risk-card {
-  padding: 14px;
-  border-left: 4px solid #d3aa45;
+  padding: 0 0 12px;
+  border-bottom: 1px solid var(--line);
 }
 
 .risk-card strong {
@@ -519,14 +513,6 @@ textarea {
   margin-top: 10px;
   color: #26332d;
   line-height: 1.4;
-}
-
-.priority-high {
-  border-left-color: #a84432;
-}
-
-.priority-medium {
-  border-left-color: #d3aa45;
 }
 
 #clauseOutput,
@@ -540,7 +526,8 @@ textarea {
   display: grid;
   grid-template-columns: 34px minmax(0, 1fr);
   gap: 12px;
-  padding: 13px;
+  padding: 0 0 12px;
+  border-bottom: 1px solid var(--line);
 }
 
 .clause-row > span {
@@ -548,9 +535,9 @@ textarea {
   place-items: center;
   width: 34px;
   height: 34px;
-  border-radius: 50%;
-  color: #fff;
-  background: var(--accent);
+  border-radius: 0;
+  color: var(--accent-strong);
+  background: transparent;
   font-weight: 800;
 }
 
@@ -566,9 +553,9 @@ textarea {
 }
 
 .question-list li {
-  padding: 11px 12px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
+  padding: 0 0 12px;
+  border: 0;
+  border-bottom: 1px solid var(--line);
   background: #fff;
   color: #26332d;
   line-height: 1.45;
@@ -671,8 +658,6 @@ textarea {
   }
 
   .panel-header p:last-child {
-    padding-left: 0;
-    border-left: 0;
   }
 
   .chip-grid {

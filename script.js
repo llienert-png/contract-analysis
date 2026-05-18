@@ -1786,13 +1786,46 @@ function cleanMarkdown(text) {
     .trim();
 }
 
+function breakLongTokens(doc, text, maxWidth) {
+  return String(text)
+    .split(/(\s+)/)
+    .map((token) => {
+      if (!token.trim() || doc.getTextWidth(token) <= maxWidth) {
+        return token;
+      }
+
+      const parts = [];
+      let part = "";
+
+      [...token].forEach((char) => {
+        const candidate = `${part}${char}`;
+        if (part && doc.getTextWidth(candidate) > maxWidth) {
+          parts.push(part);
+          part = char;
+        } else {
+          part = candidate;
+        }
+      });
+
+      if (part) {
+        parts.push(part);
+      }
+
+      return parts.join(" ");
+    })
+    .join("");
+}
+
 function writePdfLine(doc, text, options) {
   let cursor = options.y;
-  const lines = doc.splitTextToSize(text || " ", options.maxWidth);
+  const safeText = breakLongTokens(doc, text || " ", options.maxWidth);
+  const lines = doc.splitTextToSize(safeText, options.maxWidth);
 
   lines.forEach((line) => {
     cursor = ensurePageSpace(doc, cursor, options.lineHeight);
-    doc.text(line, options.x, cursor);
+    doc.text(line, options.x, cursor, {
+      maxWidth: options.maxWidth,
+    });
     cursor += options.lineHeight;
   });
 
@@ -1807,11 +1840,12 @@ function writeWrappedText(doc, text, options) {
   const paragraphs = text.split(/\n{2,}/);
 
   paragraphs.forEach((paragraph) => {
-    const lines = doc.splitTextToSize(paragraph.trim() || " ", maxWidth);
+    const safeParagraph = breakLongTokens(doc, paragraph.trim() || " ", maxWidth);
+    const lines = doc.splitTextToSize(safeParagraph, maxWidth);
 
     lines.forEach((line) => {
       cursor = ensurePageSpace(doc, cursor, lineHeight);
-      doc.text(line, options.x, cursor);
+      doc.text(line, options.x, cursor, { maxWidth });
       cursor += lineHeight;
     });
 
@@ -1851,12 +1885,16 @@ function writeMarkdownReport(doc, text, options) {
         doc.setFont("helvetica", "bold");
         doc.setFontSize(9);
         doc.setTextColor(47, 107, 79);
-        cursor = writePdfLine(doc, cells.join(" / "), {
-          x: left,
-          y: cursor,
-          maxWidth,
-          lineHeight: 4.8,
+        cells.forEach((cell, cellIndex) => {
+          const prefix = cellIndex === 0 ? "" : "   ";
+          cursor = writePdfLine(doc, `${prefix}${cellIndex + 1}. ${cell}`, {
+            x: left,
+            y: cursor,
+            maxWidth,
+            lineHeight: 4.8,
+          });
         });
+        cursor += 1.5;
         doc.setFont("helvetica", "normal");
         doc.setFontSize(9.5);
         doc.setTextColor(31, 43, 37);
